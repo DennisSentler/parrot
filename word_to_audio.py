@@ -43,18 +43,22 @@ def watson_cloud_tts(text, output_path, username, password):
 
 
 def google_cloud_tts(text, output_path):
-    voice_list = [('en-GB', 'en-GB-Standard-A'), ('en-GB', 'en-GB-Standard-B'),
-    ('en-GB', 'en-GB-Standard-C'), ('en-GB', 'en-GB-Standard-D'),
-    ('en-US', 'en-US-Wavenet-A'), ('en-US', 'en-US-Wavenet-B'),
-    ('en-US', 'en-US-Wavenet-C'), ('en-US', 'en-US-Wavenet-D'),
-    ('en-US', 'en-US-Wavenet-E'), ('en-US', 'en-US-Wavenet-F'),
-    ('en-US', 'en-US-Standard-B'), ('en-US', 'en-US-Standard-C'),
-    ('en-US', 'en-US-Standard-D'), ('en-US', 'en-US-Standard-E')]
-
+    voice_list = [
+        ('de-DE', 'de-DE-Standard-A'), 
+        ('de-DE', 'de-DE-Standard-B'),
+        ('de-DE', 'de-DE-Standard-C'), 
+        ('de-DE', 'de-DE-Standard-D'),
+        ('de-DE', 'de-DE-Standard-E'),
+        ('de-DE', 'de-DE-Standard-F'),
+        ('de-DE', 'de-DE-Wavenet-A'), 
+        ('de-DE', 'de-DE-Wavenet-B'),
+        ('de-DE', 'de-DE-Wavenet-C'), 
+        ('de-DE', 'de-DE-Wavenet-D'),
+        ('de-DE', 'de-DE-Wavenet-E'), 
+        ('de-DE', 'de-DE-Wavenet-F')]
+        
     client = texttospeech.TextToSpeechClient()
-
-    input_text = texttospeech.types.SynthesisInput(text=text)
-
+    input_text = texttospeech.SynthesisInput(text=text)
     # Text to speech api request
     for language, voice in voice_list:
         # Generate random voice characteristics
@@ -63,16 +67,16 @@ def google_cloud_tts(text, output_path):
         random_pitch = 0
 
         for i in range(10):
-            voice_config = texttospeech.types.VoiceSelectionParams(
+            voice_config = texttospeech.VoiceSelectionParams(
                 language_code=language,
                 name=voice)
-            audio_config = texttospeech.types.AudioConfig(
-                audio_encoding=texttospeech.enums.AudioEncoding.LINEAR16,
+            audio_config = texttospeech.AudioConfig(
+                audio_encoding=texttospeech.AudioEncoding.LINEAR16,
                 speaking_rate=random_rate,
                 pitch=random_pitch,
                 volume_gain_db=random_volume)
 
-            response = client.synthesize_speech(input_text, voice_config, audio_config)
+            response = client.synthesize_speech(input=input_text, voice=voice_config, audio_config=audio_config)
 
             file_name = 'gc_{0}{1}%{2}db{3}st.wav'.format(voice, random_rate, random_volume, random_pitch)
             with open(output_path + '/' + file_name, 'wb') as f:
@@ -131,9 +135,9 @@ def microsoft_tts(text, output_path, token):
 def main():
     parser = argparse.ArgumentParser(description="create a directory for each word, \
         and 320 different voices per word in its directory")
-    parser.add_argument('ms_subscription_key', help='Microsoft cognitive service subscription key')
-    parser.add_argument('watson_username', help='IBM Watson TTS subscription username')
-    parser.add_argument('watson_password', help='IBM Watson TTS subscription password')
+    #parser.add_argument('ms_subscription_key', help='Microsoft cognitive service subscription key')
+    #parser.add_argument('watson_username', help='IBM Watson TTS subscription username')
+    #parser.add_argument('watson_password', help='IBM Watson TTS subscription password')
     parser.add_argument('--words', nargs='*', help='Words to be pronounced', default=['albert einstein'])
     args = parser.parse_args()
 
@@ -142,20 +146,20 @@ def main():
     # Authentication for Microsoft Speech Service
     # Get an authorization token
     # TODO: get a new authentication token per nine minutes
-    ms_token_url = 'https://westus.api.cognitive.microsoft.com/sts/v1.0/issueToken'
-    ms_token_header = {'Ocp-Apim-Subscription-Key':args.ms_subscription_key}
-    ms_token_response = requests.post(ms_token_url, headers = ms_token_header)
+    #ms_token_url = 'https://westus.api.cognitive.microsoft.com/sts/v1.0/issueToken'
+    #ms_token_header = {'Ocp-Apim-Subscription-Key':args.ms_subscription_key}
+    #ms_token_response = requests.post(ms_token_url, headers = ms_token_header)
 
     for word in word_list:
         # Create an individual directory for each keyword if not existed
-        path = word.replace(' ', '')
+        path = 'generated_words/' + word.replace(' ', '')
         if not os.path.exists(path):
             os.makedirs(path)
             print(path + ' directory is created!')
 
-        microsoft_tts(word, path, ms_token_response.text)
+        #microsoft_tts(word, path, ms_token_response.text)
         google_cloud_tts(word, path)
-        watson_cloud_tts(word, path, args.watson_username, args.watson_password)
+        #watson_cloud_tts(word, path, args.watson_username, args.watson_password)
 
         print('all audios for ' + word + ' are generated!')
 
