@@ -6,8 +6,16 @@
 # parrot
 Keyword spotting using audio from speech synthesis services and YouTube
 
-## Example Use
+## Prerequisites ##
+**Google**
 
+[Google Cloud Text-To-Speech SDK Instruction](https://cloud.google.com/text-to-speech/docs/libraries)
+
+Set authentification in variable 
+```
+export GOOGLE_APPLICATION_CREDENTIALS="KEY_PATH"
+```
+## Example Use
 **Generate systhesized examples for words**
 ```
 python word_to_audio.py 
